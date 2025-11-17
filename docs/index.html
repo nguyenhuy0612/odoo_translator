@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PO Translator - Professional AI-powered translation tool for Odoo .po files. Fast, intelligent, and completely free.">
+    <meta name="keywords" content="Odoo, PO files, translation, AI translator, Gemini, localization, i18n">
+    <meta name="author" content="K11E3R">
+    <title>PO Translator - AI-Powered Odoo Translation Tool</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --secondary: #26a69a;
+            --dark-bg: #0a0e27;
+            --card-bg: #151b3d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b8d4;
+            --accent: #ff6b6b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 6rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f3a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(30, 136, 229, 0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #1e88e5, #26a69a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 136, 229, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: var(--dark-bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 4rem;
+            font-size: 1.2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(30, 136, 229, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat {
+            padding: 1rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Screenshot Section */
+        .screenshots {
+            padding: 6rem 2rem;
+            background: var(--dark-bg);
+        }
+
+        .screenshot-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .screenshot-container img {
+            width: 100%;
+            display: block;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: var(--card-bg);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1.5rem;
+        }
+
+        .step h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        /* Download Section */
+        .download {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            text-align: center;
+        }
+
+        .download h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .download p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* FAQ Section */
+        .faq {
+            padding: 6rem 2rem;
+            background: var(--dark-bg);
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--card-bg);
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question:hover {
+            background: rgba(30, 136, 229, 0.1);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question::after {
+            transform: rotate(180deg);
+        }
+
+        .faq-question::after {
+            content: '▼';
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--card-bg);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+
+            nav .nav-links {
+                display: none;
+            }
+
+            .features-grid,
+            .stats-grid,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo">⚡ PO Translator</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#download">Download</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="https://github.com/K11E3R/odoo_translator">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AI-Powered Translation for Odoo</h1>
+            <p class="subtitle">
+                Fast, intelligent translation tool for Odoo .po files with offline support. 
+                Powered by Google Gemini 2.5 Flash and built-in glossaries.
+            </p>
+            <div class="cta-buttons">
+                <a href="https://github.com/K11E3R/odoo_translator/releases/latest" class="btn btn-primary">
+                    📥 Download Free
+                </a>
+                <a href="https://github.com/K11E3R/odoo_translator" class="btn btn-secondary">
+                    ⭐ Star on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-number">8+</div>
+                <div class="stat-label">Languages Supported</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free & Open Source</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">90%</div>
+                <div class="stat-label">Cache Hit Rate</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Entries Per Batch</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why PO Translator?</h2>
+            <p class="section-subtitle">Everything you need for professional Odoo translations</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Translation</h3>
+                    <p>Uses Google Gemini 2.5 Flash-Lite for accurate, context-aware translations with Odoo-specific terminology.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📴</div>
+                    <h3>Offline Mode</h3>
+                    <p>Built-in glossaries for English↔French and English↔Spanish work completely without internet.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Smart Detection</h3>
+                    <p>Automatic language detection with 95%+ accuracy using advanced heuristics and ML models.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>70-90% cache hit rate means repeated translations are instant. Rate-limited API calls at ~10 req/sec.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Variable Preservation</h3>
+                    <p>Automatically preserves placeholders like %(name)s, %s, {x} ensuring your code stays functional.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Modern UI</h3>
+                    <p>Beautiful dark theme interface built with CustomTkinter. Intuitive, fast, and professional.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Detailed Statistics</h3>
+                    <p>Track API usage, cache performance, errors, and auto-corrections in real-time.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Smart Caching</h3>
+                    <p>Translations cached locally (~/.po_translator) for instant reuse across projects.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Batch Processing</h3>
+                    <p>Import multiple .po files, translate hundreds of entries, and export with one click.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshot -->
+    <section class="screenshots">
+        <div class="container">
+            <h2 class="section-title">See It In Action</h2>
+            <p class="section-subtitle">Clean, modern interface designed for productivity</p>
+            
+            <div class="screenshot-container">
+                <img src="https://raw.githubusercontent.com/K11E3R/odoo_translator/main/docs/screenshots/import_po_file.png" 
+                     alt="PO Translator Interface" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; padding:4rem; text-align:center; background:#1a1f3a;">
+                    <p style="font-size:1.2rem; color:#b0b8d4;">📸 Screenshot will appear here</p>
+                    <p style="color:#7a8199; margin-top:1rem;">Import your first .po file to see the beautiful interface</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Get started in 3 simple steps</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Import Files</h3>
+                    <p>Select one or more .po files from your Odoo module's i18n folder. Files are automatically merged and deduplicated.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Configure & Translate</h3>
+                    <p>Set source and target languages. Click "Translate All" or select specific entries. Works online or offline!</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Export & Use</h3>
+                    <p>Export translated .po file (and optional .mo). Copy back to your Odoo module and update!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <h2>Ready to Speed Up Your Translations?</h2>
+            <p>Download for free and start translating Odoo modules in minutes</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/K11E3R/odoo_translator/releases/latest" class="btn" style="background:white; color:var(--primary);">
+                    📥 Download Now
+                </a>
+                <a href="https://github.com/K11E3R/odoo_translator#readme" class="btn btn-secondary" style="border-color:white; color:white;">
+                    📖 Read Documentation
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="faq">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Everything you need to know</p>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">Is PO Translator really free?</div>
+                    <div class="faq-answer">
+                        Yes! PO Translator is 100% free and open source under MIT license. You can use it for personal or commercial projects without any cost.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Do I need an API key?</div>
+                    <div class="faq-answer">
+                        For online AI translation, you need a free Google Gemini API key from <a href="https://aistudio.google.com/app/apikey" style="color:var(--primary);">Google AI Studio</a>. For offline mode with built-in glossaries, no API key is needed!
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Which languages are supported?</div>
+                    <div class="faq-answer">
+                        Currently supports: English, French, Spanish, German, Italian, Portuguese, Dutch, and Arabic. Offline mode works for EN↔FR and EN↔ES.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Can I use it offline?</div>
+                    <div class="faq-answer">
+                        Yes! Enable "Offline mode" in the sidebar to use built-in glossaries for English↔French and English↔Spanish translations without internet.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">How accurate are the translations?</div>
+                    <div class="faq-answer">
+                        AI translations are ~95% accurate for Odoo-specific terminology. The tool uses carefully crafted prompts with domain glossaries. Always review translations before deploying to production.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Does it work with Python 3.13?</div>
+                    <div class="faq-answer">
+                        Requires Python 3.11+. Some dependencies (fasttext-wheel) don't support Python 3.13 yet. We recommend Python 3.11 or 3.12.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Can I contribute?</div>
+                    <div class="faq-answer">
+                        Absolutely! Contributions are welcome. Check out the <a href="https://github.com/K11E3R/odoo_translator" style="color:var(--primary);">GitHub repository</a> for issues, feature requests, and contribution guidelines.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/K11E3R/odoo_translator">GitHub</a>
+                <a href="https://github.com/K11E3R/odoo_translator/releases">Releases</a>
+                <a href="https://github.com/K11E3R/odoo_translator#readme">Documentation</a>
+                <a href="https://github.com/K11E3R/odoo_translator/issues">Support</a>
+                <a href="https://github.com/K11E3R/odoo_translator/blob/main/LICENSE">License</a>
+            </div>
+
+            <div class="social-links">
+                <a href="https://github.com/K11E3R" title="GitHub">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <p style="color: var(--text-secondary); margin-top:2rem;">
+                Made with ❤️ for Odoo developers worldwide
+            </p>
+            <p style="color: var(--text-secondary); margin-top:0.5rem;">
+                © 2025 PO Translator. Open source under MIT License.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Accordion
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const wasActive = item.classList.contains('active');
+                
+                // Close all items
+                document.querySelectorAll('.faq-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                
+                // Open clicked item if it wasn't active
+                if (!wasActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
