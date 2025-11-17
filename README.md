@@ -552,7 +552,6 @@ translator_odoo/
 ├── pyproject.toml              # Project metadata & packaging
 ├── CHANGELOG.md                # Version history
 ├── SECURITY.md                 # Security policy
-├── RELEASE_NOTES_v1.0.0.md     # Release notes
 ├── docs/                       # Website & documentation
 │   ├── index.html             # GitHub Pages landing page
 │   ├── _config.yml            # Jekyll config
