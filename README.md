@@ -1,10 +1,11 @@
 # Odoo PO Translator
 
-
+🌐 **Website:** [https://K11E3R.github.io/odoo_translator](https://K11E3R.github.io/odoo_translator)
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](CHANGELOG.md)
+[![Website](https://img.shields.io/badge/website-live-brightgreen.svg)](https://K11E3R.github.io/odoo_translator)
 
 > **AI-powered translation assistant for Odoo `.po` files with offline support**
 
@@ -43,6 +44,9 @@ Fast, intelligent tool for translating Odoo localization files. Works online wit
 
 ## Quick start
 
+**🌐 Visit the website:** [https://K11E3R.github.io/odoo_translator](https://K11E3R.github.io/odoo_translator)
+
+**Install & Run:**
 ```bash
 pip install -r requirements.txt
 python app.py              # launch the desktop app
@@ -56,7 +60,7 @@ po-translator translate module.po --target fr --offline
 
 - **Gemini 2.5 Flash-Lite** support with rate-limited requests and cache reuse when an API key is provided
 - **Offline glossary engine** (English↔French, English↔Spanish) that keeps placeholders intact for air-gapped use
-- **Smart language detection** combining heuristics, `langid`, and Google Translate (optional) to flag mismatches before translating
+- **Smart language detection** using Lingua-py (93.3% accuracy) with keyword-based heuristics and optional Google Translate fallback
 - **CustomTkinter UI** with pagination, selection tools, theming, and language-mismatch prompts tuned for Odoo strings
 - **Simple CLI** (`po-translator`) that mirrors GUI rules for unattended runs, including dry-run validation
 
@@ -90,11 +94,17 @@ po-translator translate module.po --target fr --offline
 
 ## Requirements
 
-- **Python 3.11+**
+- **Python 3.11+** (Python 3.13 not yet supported due to fasttext-wheel limitations)
 - **Gemini API Key** (free at https://aistudio.google.com/app/apikey) — optional when using offline mode
-- **Dependencies**: `polib`, `langdetect`, `langid`, `customtkinter`, `google-generativeai`, `googletrans`
+- **Dependencies**:
+  - `polib` - PO file parsing
+  - `lingua-language-detector` - Language detection (recommended, best accuracy)
+  - `fasttext-wheel` - Fallback language detection (requires Python ≤3.12)
+  - `numpy` - Required for fasttext
+  - `google-generativeai` - Gemini AI integration
+  - `customtkinter` - Modern UI framework
 
-**WSL Users**: `sudo apt install python3-tk`
+**WSL/Linux Users**: `sudo apt install python3-tk`
 
 ---
 
@@ -182,48 +192,6 @@ flowchart TD
 - Offline translations participate in caching, statistics, selection workflows, and validation prompts
 - Supply a Gemini API key and disable offline mode to switch back to high-fidelity online translations
 
----
-
-## Project Structure
-
-```
-translator_odoo/
-├── app.py                      # Main entry point
-├── clear_cache.py              # Cache management utility
-├── requirements.txt            # Python dependencies
-├── test_translation_debug.py   # Debug translation issues
-├── test_translator.py          # Unit tests
-├── test_files/                 # Sample PO files for testing
-│   ├── test_fr_en.po          # French → English test
-│   ├── test_mixed.po          # Mixed language test
-│   └── test_with_variables.po # Variable preservation test
-└── src/po_translator/
-    ├── translator.py           # Core AI translator (Gemini 2.5)
-    ├── cli.py                  # Command-line interface
-    ├── core/                   # Business logic
-    │   ├── merger.py          # PO file merging
-    │   ├── cleaner.py         # Entry deduplication
-    │   └── indexer.py         # Module tracking
-    ├── utils/                  # Utilities
-    │   ├── logger.py          # Logging system
-    │   ├── language.py        # Language detection
-    │   └── file_utils.py      # File operations
-    └── gui/                    # GUI components
-        ├── app.py             # Main application window
-        ├── components/        # UI components
-        │   ├── sidebar.py     # Scrollable left sidebar
-        │   ├── toolbar.py     # Top toolbar
-        │   ├── table.py       # Translation table
-        │   └── statusbar.py   # Bottom status bar
-        ├── dialogs/           # Dialog windows
-        │   ├── edit_dialog.py
-        │   ├── export_dialog.py
-        │   └── statistics_dialog.py
-        └── widgets/           # Custom widgets
-            └── undo_manager.py
-```
-
----
 
 ## Core Components
 
@@ -263,11 +231,12 @@ translator_odoo/
 
 ### Language Detection (`src/po_translator/utils/language.py`)
 
-- **Keyword-based detection** for short texts (< 3 words)
-- **langid fallback** for longer texts
+- **Lingua-py** (primary) - 93.3% accuracy for language detection, best for short texts
+- **Keyword-based detection** for Odoo-specific terms (< 3 words)
+- **FastText fallback** (if Lingua unavailable) - requires Python ≤3.12
 - **Confidence mapping** to handle misdetections
-- **French/English indicators** for Odoo-specific terms
-- **Optional Google-backed detection** (set `PO_TRANSLATOR_USE_GOOGLE_DETECTION=0` to keep detection fully offline)
+- **French/English indicators** for Odoo-specific terminology
+- **Optional Google Translate detection** (set `PO_TRANSLATOR_USE_GOOGLE_DETECTION=0` to keep detection fully offline)
 
 ### Offline Glossary Translator
 
@@ -301,8 +270,9 @@ target = "fr"      # Target is French
 ```
 
 The system combines:
-- Keyword-based detection for short texts (Odoo-specific terms)
-- `langid` for longer phrases
+- **Lingua-py** for accurate language detection (93.3% accuracy)
+- Keyword-based detection for Odoo-specific terms and short texts
+- FastText fallback (if available) for longer phrases
 - Optional Google Translate detection for ambiguous cases
 - Confidence mapping to handle edge cases
 
@@ -369,10 +339,10 @@ The prompt ensures:
 - Search and filter
 
 ### Dialogs
-- **Edit Dialog**: Modify msgid/msgstr
-- **Export Dialog**: Choose export options (.po, .mo)
-- **Statistics Dialog**: View detailed stats
-- **Language Mismatch Dialog**: Handle detected mismatches
+- **Edit Dialog**: Modify msgid/msgstr entries inline
+- **Export Dialog**: Choose export options (.po, .mo) with file path selection
+- **Statistics Dialog**: View detailed stats (cache hits, API usage, errors)
+- **Language Mismatch Dialog**: Handle detected language mismatches with correction prompts
 
 ---
 
@@ -436,6 +406,7 @@ Or via GUI: Statistics → Clear Cache
 - The project follows semantic versioning—see [CHANGELOG.md](CHANGELOG.md) for release notes
 - Install via `pip install .` or `pip install -e .` to obtain the `po-translator` entry point
 - Add `python -m unittest` to CI (after setting `PO_TRANSLATOR_OFFLINE_MODE=1`) to keep regressions covered
+- **Pre-built Windows executables** are available in [GitHub Releases](https://github.com/K11E3R/odoo_translator/releases)
 
 ---
 
@@ -488,6 +459,22 @@ Located in `test_files/`:
 - `test_fr_en.po` - French to English
 - `test_mixed.po` - Mixed languages
 - `test_with_variables.po` - Variable preservation
+
+### Automated Test Suite
+
+Run comprehensive tests:
+```bash
+cd automated_tests
+python run_tests.py
+```
+
+Tests cover:
+- Translation accuracy
+- Variable preservation
+- Language detection
+- CLI functionality
+- Offline mode
+- PO file loading
 
 ---
 
@@ -551,6 +538,72 @@ Edit `src/po_translator/utils/language.py`:
 - Add keywords to `FRENCH_INDICATORS` / `ENGLISH_INDICATORS`
 - Adjust confidence thresholds
 - Add language mappings
+
+---
+
+## Project Structure
+
+```
+translator_odoo/
+├── app.py                      # Main entry point (launches GUI)
+├── clear_cache.py              # Cache management utility
+├── prepare_release.py          # Release preparation script
+├── requirements.txt            # Python dependencies
+├── pyproject.toml              # Project metadata & packaging
+├── CHANGELOG.md                # Version history
+├── SECURITY.md                 # Security policy
+├── RELEASE_NOTES_v1.0.0.md     # Release notes
+├── docs/                       # Website & documentation
+│   ├── index.html             # GitHub Pages landing page
+│   ├── _config.yml            # Jekyll config
+│   └── screenshots/           # Demo images & videos
+├── automated_tests/           # Automated test suite
+│   ├── run_tests.py           # Test runner
+│   ├── input/                 # Test input files
+│   ├── output/                # Test output files
+│   └── reports/               # Test reports
+├── test_files/                # Sample PO files for testing
+│   ├── test_fr_en.po         # French → English test
+│   ├── test_mixed.po         # Mixed language test
+│   └── test_with_variables.po # Variable preservation test
+├── test_*.py                  # Unit test files
+│   ├── test_translator.py     # Core translator tests
+│   ├── test_translation_debug.py # Debug translation tests
+│   ├── test_cli.py           # CLI tests
+│   ├── test_language_utils.py # Language detection tests
+│   ├── test_offline_translator.py # Offline mode tests
+│   ├── test_po_loading.py     # PO file loading tests
+│   ├── test_imports.py        # Import validation tests
+│   └── test_clean_accuracy.py # Accuracy tests
+└── src/po_translator/         # Main source code
+    ├── __init__.py            # Package initialization
+    ├── translator.py          # Core AI translator (Gemini 2.5)
+    ├── cli.py                 # Command-line interface
+    ├── gui.py                 # GUI entry point (legacy)
+    ├── core/                  # Business logic
+    │   ├── merger.py         # PO file merging
+    │   ├── cleaner.py        # Entry deduplication
+    │   └── indexer.py        # Module tracking
+    ├── utils/                 # Utilities
+    │   ├── logger.py         # Logging system
+    │   ├── language.py       # Language detection
+    │   └── file_utils.py     # File operations
+    └── gui/                   # GUI components
+        ├── app.py            # Main application window
+        ├── theme.py          # Theme configuration
+        ├── components/       # UI components
+        │   ├── sidebar.py    # Scrollable left sidebar
+        │   ├── toolbar.py    # Top toolbar
+        │   ├── table.py      # Translation table
+        │   └── statusbar.py # Bottom status bar
+        ├── dialogs/          # Dialog windows
+        │   ├── edit_dialog.py
+        │   ├── export_dialog.py
+        │   ├── statistics_dialog.py
+        │   └── language_mismatch_dialog.py
+        └── widgets/          # Custom widgets
+            └── undo_manager.py
+```
 
 ---
 
@@ -656,4 +709,34 @@ We'd love your help! Here are impactful areas where you can contribute:
 - Sample `.po` file (if applicable)
 
 ---
+
+## Links
+
+🌐 **Website:** [https://K11E3R.github.io/odoo_translator](https://K11E3R.github.io/odoo_translator)  
+📦 **Releases:** [https://github.com/K11E3R/odoo_translator/releases](https://github.com/K11E3R/odoo_translator/releases)  
+📚 **Documentation:** [Full README](https://github.com/K11E3R/odoo_translator#readme)  
+🐛 **Issues:** [Report bugs & request features](https://github.com/K11E3R/odoo_translator/issues)  
+⭐ **Star us:** [Give us a star if you like it!](https://github.com/K11E3R/odoo_translator/stargazers)
+
+---
+
+## Acknowledgments
+
+Built with these amazing open-source projects:
+- [Google Gemini](https://ai.google.dev/) - AI translation
+- [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) - Modern UI framework
+- [polib](https://github.com/izimobil/polib) - PO file parsing
+- [Lingua](https://github.com/pemistahl/lingua-py) - Language detection
+
+**Special thanks** to the Odoo community for inspiration and feedback!
+
+---
+
+<div align="center">
+
+**Made with ❤️ for Odoo developers worldwide**
+
+If this tool saves you time, [⭐ give it a star](https://github.com/K11E3R/odoo_translator/stargazers)!
+
+</div>
 
