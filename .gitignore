@@ -51,3 +51,6 @@ po_translator.log
 *.mo
 
 
+BUILD*
+build*
+POTranslator.spec
