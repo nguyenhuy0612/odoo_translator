@@ -262,7 +262,7 @@ This is the first production release (v1.0.0)
 
 ## 💝 Credits
 
-**Developed by**: BOUBOU  
+**Developed by**: k11e3r  
 **License**: MIT  
 **Special Thanks**: 
 - Facebook AI Research (FastText)

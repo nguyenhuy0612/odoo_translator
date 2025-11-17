@@ -18,6 +18,7 @@ except ImportError:
 
 from po_translator.core.merger import POMerger
 from po_translator.translator import Translator
+# Using Lingua-py for best accuracy (93.3% vs FastText 66.7%)
 from po_translator.utils.language import detect_language, detect_language_details, is_untranslated
 from po_translator.utils.logger import get_logger
 
@@ -26,7 +27,8 @@ from .dialogs import EditDialog, ExportDialog, StatisticsDialog, LanguageMismatc
 from .widgets import UndoManager
 from .theme import THEME, apply_root_theme
 
-ctk.set_appearance_mode("light")
+# Initialize theme system - always dark mode
+ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 
@@ -77,14 +79,12 @@ class POTranslatorApp:
         self.root.minsize(1200, 700)
 
         apply_root_theme(self.root)
-
+        
         self.setup_ui()
-        self.sidebar.set_offline_mode(self.translator.offline_mode)
         self.load_config()
         self.setup_shortcuts()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.apply_language_settings(show_status=False)
-        self.update_translation_availability()
 
         self.logger.info("Application initialized")
     
@@ -114,7 +114,6 @@ class POTranslatorApp:
             'language_changed': self.on_language_changed,
             'change_page': self.change_page,
             'change_page_size': self.change_page_size,
-            'offline_mode_changed': self.on_offline_mode_changed,
         }
         
         # Create components
@@ -122,7 +121,7 @@ class POTranslatorApp:
         self.sidebar.disable_file_buttons()
 
         # Content area
-        content = ctk.CTkFrame(self.root, corner_radius=0, fg_color=THEME.SURFACE)
+        content = ctk.CTkFrame(self.root, corner_radius=0, fg_color=THEME.get("SURFACE"))
         content.grid(row=0, column=1, sticky="nsew", padx=0, pady=0)
         content.grid_rowconfigure(2, weight=1)
         content.grid_columnconfigure(0, weight=1)
@@ -163,26 +162,21 @@ class POTranslatorApp:
         """Save API key"""
         key = self.sidebar.api_key_entry.get().strip()
         if not key:
-            if self.translator.offline_mode:
-                messagebox.showinfo(
-                    "Offline Mode",
-                    "Offline mode is enabled. An API key is optional until you disable offline mode.",
-                )
-                return
             messagebox.showerror("Error", "Please enter an API key")
             return
-
+        
         config = os.path.join(os.path.dirname(__file__), '..', '..', '..', '.config')
         try:
             with open(config, 'w') as f:
                 f.write(key)
         except:
             pass
-
+        
         self.translator.set_api_key(key)
         self.apply_language_settings(show_status=False)
 
-        self.update_translation_availability()
+        if self.entries:
+            self.sidebar.enable_translation_buttons()
 
         self.statusbar.set_status("✅ API key saved successfully")
         messagebox.showinfo("Success", "API key saved! Translation features are now enabled.")
@@ -242,7 +236,8 @@ class POTranslatorApp:
         else:
             self.sidebar.disable_file_buttons()
 
-        self.update_translation_availability()
+        if self.sidebar.api_key_entry.get().strip():
+            self.sidebar.enable_translation_buttons()
 
         if not auto_configured:
             self.statusbar.set_status(f"✅ Imported {len(entries)} entries successfully")
@@ -311,12 +306,41 @@ class POTranslatorApp:
             ):
                 return status
 
-        src_lang, src_conf = detect_language_details(msgid)
+        # Use context-aware detection if we have other entries
+        # This helps with short text detection
+        context_texts = []
+        if self.entries:
+            entry_index = next((i for i, e in enumerate(self.entries) if id(e) == entry_id), None)
+            if entry_index is not None:
+                # Get surrounding entries for context
+                start = max(0, entry_index - 3)
+                end = min(len(self.entries), entry_index + 4)
+                context_texts = [
+                    e.msgid for e in self.entries[start:end] 
+                    if e.msgid and e.msgid.strip() and id(e) != entry_id
+                ]
+        
+        # Use context-aware detection for better accuracy
+        # Pass expected source language as hint for ambiguous cases
+        from po_translator.utils.language import detect_language_with_context
+        src_lang, src_conf = detect_language_with_context(
+            msgid, 
+            context_texts=context_texts[:5] if context_texts else None,
+            min_confidence=0.3,
+            expected_language=expected_source  # Use expected source as hint
+        )
         missing_translation = is_untranslated(entry.msgid, entry.msgstr)
 
         trans_lang, trans_conf = (None, 0.0)
         if not missing_translation and msgstr:
-            trans_lang, trans_conf = detect_language_details(msgstr)
+            # Use context for translation too, with expected target as hint
+            trans_context = [msgid] + context_texts[:4] if context_texts else [msgid]
+            trans_lang, trans_conf = detect_language_with_context(
+                msgstr,
+                context_texts=trans_context,
+                min_confidence=0.3,
+                expected_language=expected_target  # Use expected target as hint
+            )
 
         source_matches = (src_lang == expected_source) if src_lang else None
         translation_matches: Optional[bool]
@@ -678,30 +702,20 @@ class POTranslatorApp:
         """Translation complete"""
         self.translating = False
         self.populate()
-        self.update_translation_availability()
+        self.sidebar.enable_translation_buttons()
         self.statusbar.set_status("✅ Translation completed successfully!")
         self.unsaved = True
 
         # Show statistics
         stats = self.translator.get_stats()
-        summary_lines = [
-            "Translation finished!",
-            "",
-            f"Total Requests: {stats['total_requests']}",
-        ]
-
-        if stats['offline_requests']:
-            summary_lines.append(f"Offline Requests: {stats['offline_requests']}")
-        if stats['api_calls']:
-            summary_lines.append(f"API Calls: {stats['api_calls']}")
-
-        summary_lines.extend([
-            f"Cache Hits: {stats['cache_hits']}",
-            f"Errors: {stats['errors']}",
-            f"Cache Hit Rate: {stats['cache_hit_rate']}",
-        ])
-
-        messagebox.showinfo("Translation Complete", "\n".join(summary_lines))
+        messagebox.showinfo(
+            "Translation Complete",
+            f"Translation finished!\n\n"
+            f"API Calls: {stats['api_calls']}\n"
+            f"Cache Hits: {stats['cache_hits']}\n"
+            f"Errors: {stats['errors']}\n"
+            f"Cache Hit Rate: {stats['cache_hit_rate']}"
+        )
     
     def undo(self):
         """Undo last action"""
@@ -742,7 +756,6 @@ class POTranslatorApp:
             self.unsaved = True
             if not self.entries:
                 self.sidebar.disable_file_buttons()
-            self.update_translation_availability()
             self.statusbar.set_status(f"🗑️ Deleted entries")
     
     def show_statistics(self):
@@ -799,21 +812,6 @@ class POTranslatorApp:
         self._manual_language_override = True
         self.apply_language_settings()
 
-    def on_offline_mode_changed(self, value):
-        """Toggle offline translation support."""
-        previous = self.translator.offline_mode
-        self.translator.set_offline_mode(value)
-        self.sidebar.set_offline_mode(self.translator.offline_mode)
-        self.update_translation_availability()
-
-        if previous == self.translator.offline_mode:
-            return
-
-        if self.translator.offline_mode:
-            self.statusbar.set_status("🛜 Offline mode enabled — translations use the local glossary engine.")
-        else:
-            self.statusbar.set_status("🌐 Offline mode disabled — Gemini translations available when an API key is set.")
-
     def apply_language_settings(self, show_status=True):
         """Synchronize sidebar language settings with the translator"""
         settings = self.sidebar.get_language_settings()
@@ -831,17 +829,6 @@ class POTranslatorApp:
             target = settings['target'].upper()
             detect = "on" if settings['auto_detect'] else "off"
             self.statusbar.set_status(f"🌐 Language settings updated: {source} → {target} (auto-detect {detect})")
-
-    def update_translation_availability(self):
-        """Enable or disable translation buttons depending on mode and state."""
-        has_entries = bool(self.entries)
-        has_api = bool(self.sidebar.api_key_entry.get().strip())
-        can_translate = has_entries and (self.translator.offline_mode or has_api)
-
-        if can_translate:
-            self.sidebar.enable_translation_buttons()
-        else:
-            self.sidebar.disable_translation_buttons()
 
     def auto_configure_languages(self):
         """Auto-detect entry language and adjust translator defaults"""
