@@ -629,14 +629,3 @@ We'd love your help! Here are impactful areas where you can contribute:
 
 ---
 
-### ⚠️ Security & Usage Disclaimer
-
-This tool is designed for professional translation of Odoo ERP `.po` files.  
-While no telemetry or external logging is performed, users remain responsible for ensuring compliance with data-handling and privacy regulations in their environment.
-
-- Always review translations before deployment in production.
-- Avoid translating files containing confidential or client-identifiable data unless offline mode is enabled.
-- Store your Gemini or Google API keys securely (environment variables or CI secrets).
-- The project provides no warranty — use at your own discretion under the MIT license.
-
----
