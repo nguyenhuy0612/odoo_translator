@@ -7,7 +7,7 @@ License: MIT
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'translator_odoo', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from po_translator.utils.logger import setup_logger, get_logger
 

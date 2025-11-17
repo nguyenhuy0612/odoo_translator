@@ -19,12 +19,14 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.python-version
 
-# Virtual Environment
-.venv/
+# Virtual environments
 venv/
-ENV/
+venv_windows/
 env/
+ENV/
+.venv
 
 # IDE
 .vscode/
@@ -33,35 +35,19 @@ env/
 *.swo
 *~
 
-# Logs
-*.log
-app.log
-automated_test.log
-
-# Cache
-.po_translator/
-*.cache
-
 # Config
+.po_translator_config
 .config
-
-# Test outputs
-test_output_*.po
-automated_tests/output/*.po
-automated_tests/reports/*.md
-automated_tests/reports/*.log
-
-# Temporary test files
-test_*.py
-!test_files/
-validate_app.py
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Documentation (keep main ones)
-!README.md
-!QUICK_START.md
-!INSTALL_PYTHON312.md
-!UPGRADE_REPORT.md
+# Logs
+*.log
+po_translator.log
+
+# Compiled translations
+*.mo
+
+

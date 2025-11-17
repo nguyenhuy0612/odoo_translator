@@ -13,6 +13,34 @@ Fast, intelligent tool for translating Odoo localization files. Works online wit
 **Why this tool?** Manual translation of Odoo modules is slow and error-prone. This tool automates the process while preserving technical placeholders and using consistent ERP terminology across 8 current languages.
 
 
+## Screenshots & Demo
+
+### 🎥 Video Demo - Complete Workflow
+
+<video src="https://github.com/K11E3R/odoo_translator/raw/main/docs/screenshots/odoo_translator_import_flow.mp4" controls width="100%"></video>
+
+*demo showing: Import PO file → Auto language detection → AI translation*
+
+> **Alternative:** If the video doesn't play, [click here to download](docs/screenshots/odoo_translator_import_flow.mp4) or view it directly in the `docs/screenshots/` folder.
+
+---
+
+### Main Interface - Premium Dark Theme
+![Main Interface](docs/screenshots/main-interface.png)
+*Clean, modern dark theme with professional sidebar navigation and empty state*
+
+### Translation Workflow in Action
+![Import & Translate](docs/screenshots/import_po_file.png)
+*Real-world example: 15 French entries with accuracy percent on language detection, module/model/field information, and translation status badges*
+
+**Key features visible:**
+- 🎯 **Language Detection**: "Detected FR (48%)" badges with adaptive confidence
+- 📦 **Module Info**: Complete module, model (fields), and field path for each entry
+- 🔄 **Translation Status**: "Not translated" / "Awaiting translation" indicators
+- 🎨 **Premium UI**: Deep navy backgrounds, vibrant accents, crystal-clear typography
+
+---
+
 ## Quick start
 
 ```bash
