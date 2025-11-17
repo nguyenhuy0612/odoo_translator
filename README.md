@@ -17,11 +17,11 @@ Fast, intelligent tool for translating Odoo localization files. Works online wit
 
 ### 🎥 Video Demo - Complete Workflow
 
-**[▶️ Watch the full demo video (MP4)](https://github.com/K11E3R/odoo_translator/raw/main/docs/screenshots/odoo_translator_import_flow.mp4)**
+![Odoo Translator Demo](docs/screenshots/odoo_translator_import_flow.gif)
 
 *Demo showing: Import PO file → Auto language detection → AI translation*
 
-> **To embed the video directly:** Edit this README on GitHub, drag and drop the video file from `docs/screenshots/odoo_translator_import_flow.mp4` into the editor, and GitHub will automatically generate an embeddable link.
+> 💡 **Tip:** [Click here to watch the full-quality video (MP4)](https://github.com/K11E3R/odoo_translator/raw/main/docs/screenshots/odoo_translator_import_flow.mp4)
 
 ---
 
